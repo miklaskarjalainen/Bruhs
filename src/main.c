@@ -14,7 +14,10 @@ int main(void)
     gCurrentLevel = &level1;
     while (!WindowShouldClose())
     {
-        WindowEvents();
+        if (IsWindowResized())
+        {
+            gCamera.zoom = (float)GetScreenHeight() / (float)SCREEN_HEIGHT;
+        }
 
         if (IsKeyDown(KEY_ONE))
         {
@@ -24,7 +27,7 @@ int main(void)
         {
             gCurrentLevel = &level2;
         }
-        PlayerUpdate(&gPlayer);
+        
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
@@ -32,6 +35,8 @@ int main(void)
 
             BeginMode2D(gCamera);
                 DrawLevel(gCurrentLevel);
+
+                PlayerUpdate(&gPlayer);
                 PlayerDraw(&gPlayer);
             EndMode2D();
 

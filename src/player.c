@@ -7,9 +7,9 @@
 
 #define PLAYER_GRAVITY   380.0f
 #define PLAYER_ACCEL     440.0f
-#define PLAYER_DEACCEL   0.01f
+#define PLAYER_DEACCEL   0.15f
 #define PLAYER_JUMP_STR -150.0f
-#define PLAYER_JUMP_STR_HOLD -180.0f
+#define PLAYER_JUMP_STR_HOLD -205.0f
 #define PLAYER_RUN_CAP   140.0f
 #define PLAYER_WALK_CAP  80.0f
 
@@ -55,17 +55,6 @@ void PlayerDraw(player_t* player)
 	);
 }
 
-static bool PlayerIsGrounded(const player_t* player)
-{
-	Rectangle rect = {
-		.x = player->obj.position.x + 4,
-		.y = player->obj.position.y + 1,
-		.width = 8,
-		.height = 16
-	};
-	return CheckLevelCollision(rect, gCurrentLevel);
-}
-
 void PlayerUpdate(player_t* player)
 {
 	const float delta = fminf(GetFrameTime(), 1.0/60.0); // Fix frametime spikes when doing window events (dragging/resizing)
@@ -74,26 +63,39 @@ void PlayerUpdate(player_t* player)
 	if (IsKeyPressed(KEY_R))
 		PlayerReset(player);
 
+	// Horizontal input
 	float moveX = .0f;
 	if (IsKeyDown(KEY_A))
 		moveX -= PLAYER_ACCEL * delta;
 	if (IsKeyDown(KEY_D))
 		moveX += PLAYER_ACCEL * delta;
-	if (PlayerIsGrounded(player) && moveX == .0f)
-	{
-		player->motion.x = Lerp(player->motion.x, .0f, PLAYER_DEACCEL);
-		if (fabsf(player->motion.x) <= 1.0)
-			player->motion.x = .0f;
-	}
-
 	player->motion.x += moveX;
-	if (IsKeyPressed(KEY_W) && PlayerIsGrounded(player))
-		player->motion.y = PLAYER_JUMP_STR;
+
+	if (player->obj.is_grounded)
+	{
+		// Slowdown 
+		if (moveX == .0f)
+		{
+			player->motion.x = Lerp(player->motion.x, .0f, PLAYER_DEACCEL);
+			if (fabsf(player->motion.x) <= 1.0)
+				player->motion.x = .0f;
+		}
+
+		// Jump
+		if (IsKeyPressed(KEY_W))
+			player->motion.y = PLAYER_JUMP_STR;
+	}
+	else
+	{
+		// Jumpholding
+		if (IsKeyDown(KEY_W))
+			player->motion.y += PLAYER_JUMP_STR_HOLD * delta;
+	}
 	
 	// Speed caps
 	player->motion.x = fmax(fminf(player->motion.x, PLAYER_WALK_CAP), -PLAYER_WALK_CAP);
 	
-	player->motion = ObjectMoveAndSlide(&player->obj, player->motion, (Rectangle) { 0.f, 0.f, 16.f, 16.f });
+	player->motion = ObjectMoveAndSlide(&player->obj, player->motion, (Rectangle) { 0.f, 0.f, 16.f, 16.f});
 	float cameraX = fabsf(gCamera.offset.x / gCamera.zoom);
 	if (cameraX > player->obj.position.x)
 	{
@@ -101,8 +103,6 @@ void PlayerUpdate(player_t* player)
 		player->motion.x = .0f;
 	}
 	
-	if (IsKeyDown(KEY_RIGHT))
-		gCamera.offset.x -= (166.0 * gCamera.zoom) * delta;
-	if (IsKeyDown(KEY_LEFT))
-		gCamera.offset.x += (166.0 * gCamera.zoom) * delta;
+	// Camera follow
+	gCamera.offset.x = -(player->obj.position.x * gCamera.zoom) + ((SCREEN_WIDTH / 2.0) * gCamera.zoom);
 }

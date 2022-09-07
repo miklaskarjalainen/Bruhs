@@ -1,11 +1,17 @@
+#include <raylib.h>
+#include <raymath.h>
 #include <math.h>
 #include "globals.h"
 #include "player.h"
 #include "levels.h"
 
-#define PLAYER_G 10.0f
-#define PLAYER_JUMP_STR -4.0f
-#define PLAYER_WALK_CAP 4.0f
+#define PLAYER_GRAVITY   380.0f
+#define PLAYER_ACCEL     440.0f
+#define PLAYER_DEACCEL   0.01f
+#define PLAYER_JUMP_STR -150.0f
+#define PLAYER_JUMP_STR_HOLD -180.0f
+#define PLAYER_RUN_CAP   140.0f
+#define PLAYER_WALK_CAP  80.0f
 
 struct player_t gPlayer = {
 	.obj = {
@@ -62,13 +68,25 @@ static bool PlayerIsGrounded(const player_t* player)
 
 void PlayerUpdate(player_t* player)
 {
-	const float delta = GetFrameTime();
-	player->motion.y += PLAYER_G * delta;
+	const float delta = fminf(GetFrameTime(), 1.0/60.0); // Fix frametime spikes when doing window events (dragging/resizing)
+	player->motion.y += PLAYER_GRAVITY * delta;
 
+	if (IsKeyPressed(KEY_R))
+		PlayerReset(player);
+
+	float moveX = .0f;
 	if (IsKeyDown(KEY_A))
-		player->motion.x -= 16.0 * delta;
+		moveX -= PLAYER_ACCEL * delta;
 	if (IsKeyDown(KEY_D))
-		player->motion.x += 16.0 * delta;
+		moveX += PLAYER_ACCEL * delta;
+	if (PlayerIsGrounded(player) && moveX == .0f)
+	{
+		player->motion.x = Lerp(player->motion.x, .0f, PLAYER_DEACCEL);
+		if (fabsf(player->motion.x) <= 1.0)
+			player->motion.x = .0f;
+	}
+
+	player->motion.x += moveX;
 	if (IsKeyPressed(KEY_W) && PlayerIsGrounded(player))
 		player->motion.y = PLAYER_JUMP_STR;
 	

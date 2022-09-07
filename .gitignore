@@ -1,0 +1,8 @@
+bin/
+
+# Binaries
+*.lib
+*.a
+*.o
+*.obj
+*.exe

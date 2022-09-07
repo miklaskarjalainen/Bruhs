@@ -11,12 +11,12 @@ const level_t level1 = {
         "........................................................."
         "........................................................."
         "........................................................."
-        "........................................................."
         ".............?..........................................."
         "........................................................."
         "........................................................."
         "........................................................."
         ".......?...#?#?#........................................."
+        "........................................................."
         ".................../|...................................."
         "...................{}...................................."
         "444444444444444444444444444444444444444444444444444444444",
@@ -46,14 +46,6 @@ const level_t level2 = {
 void DrawBlock(int x, int y, Color c)
 {
     DrawRectangle(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, c);
-}
-
-void WindowEvents()
-{
-    if (IsWindowResized())
-    {
-        gCamera.zoom = (float)GetScreenHeight() / (float)SCREEN_HEIGHT;
-    }
 }
 
 void DrawLevel(const level_t* data)
@@ -103,18 +95,27 @@ int CheckLevelCollision(Rectangle rect, const level_t* level)
 {
     assert(level);
 
+    Rectangle size = {
+        (rect.x / 16),
+        (rect.y / 16),
+        (rect.width / 16),
+        (rect.height / 16),
+    };
+
     const int Width = level->width;
-    for (int x = 0; x < Width; x++)
+    for (int x = size.x; x < (size.x + size.width); x++)
     {
-        for (int y = 0; y < LEVEL_HEIGHT; y++)
+        for (int y = size.y; y < (size.y + size.height); y++)
         {
+            // DrawRectangleLines(x * 16, y * 16, 16, 16, RED);
+            
             block_type t = level->data[Width * y + x];
             switch (t)
             {
             case BLOCK_QB:
             case BLOCK_GROUND:
             case BLOCK_BRICK:
-                if (CheckCollisionRecs((Rectangle) {x * 16, y * 16, 16, 16}, rect))
+                if (CheckCollisionRecs((Rectangle) { x * 16, y * 16, 16, 16 }, rect))
                     return 1;
                 break;
             default:

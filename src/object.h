@@ -14,6 +14,7 @@ typedef struct object_t
 {
 	object_type type;
 	Vector2 position;
+	bool is_grounded; /* Get's updated after move and slide */
 } object_t;
 
 Vector2 ObjectMoveAndSlide(object_t* obj, Vector2 motion, const Rectangle h);

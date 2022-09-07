@@ -3,6 +3,22 @@
 #include "levels.h"
 #include "object.h"
 
+inline bool ObjectIsGrounded(const object_t* obj)
+{
+	/*
+		We but a thin hitbox 1 px below the object,
+		use it against the level and if collision is found then 
+		the object is grounded.
+	*/
+	Rectangle rect = {
+		.x = obj->position.x + 4,
+		.y = obj->position.y + 1,
+		.width = 8,
+		.height = 16
+	};
+	return CheckLevelCollision(rect, gCurrentLevel);
+}
+
 // TODO: hitboxes with offset
 Vector2 ObjectMoveAndSlide(object_t* obj, Vector2 motion, const Rectangle h)
 {
@@ -48,6 +64,8 @@ Vector2 ObjectMoveAndSlide(object_t* obj, Vector2 motion, const Rectangle h)
 		}
 		motion.y = .0f;
 	}
+
+	obj->is_grounded = ObjectIsGrounded(obj);
 
 	return motion;
 }

@@ -5,6 +5,6 @@
 #define SCREEN_HEIGHT 240
 
 extern struct Camera2D gCamera;
-extern const char* gCurrentLevel;
+extern const struct level_t* gCurrentLevel;
 
 #endif

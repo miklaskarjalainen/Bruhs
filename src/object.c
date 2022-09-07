@@ -1,3 +1,4 @@
+#include <raylib.h>
 #include "globals.h"
 #include "levels.h"
 #include "object.h"
@@ -5,8 +6,10 @@
 // TODO: hitboxes with offset
 Vector2 ObjectMoveAndSlide(object_t* obj, Vector2 motion, const Rectangle h)
 {
+	const float delta = GetFrameTime();
+
 	// X motion
-	obj->position.x += motion.x;
+	obj->position.x += motion.x * delta;
 	
 	Rectangle rect = {
 		.x = h.x + obj->position.x,
@@ -28,7 +31,7 @@ Vector2 ObjectMoveAndSlide(object_t* obj, Vector2 motion, const Rectangle h)
 		motion.x = .0f;
 	}
 
-	obj->position.y += motion.y;
+	obj->position.y += motion.y * delta;
 	rect.x = h.x + obj->position.x;
 	rect.y = h.y + obj->position.y;
 

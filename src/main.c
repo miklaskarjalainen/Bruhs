@@ -1,9 +1,11 @@
 #include <raylib.h>
 
 #include "globals.h"
-#include "player.h"
-#include "object.h"
 #include "levels.h"
+
+#include "objects/player.h"
+#include "objects/goomba.h"
+#include "objects/object.h"
 
 int main(void)
 {
@@ -12,6 +14,9 @@ int main(void)
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     
     gCurrentLevel = &level1;
+
+    ObjectSpawn(CreateGoomba((Vector2){100.f, 32.f}));
+
     while (!WindowShouldClose())
     {
         if (IsWindowResized())
@@ -36,11 +41,11 @@ int main(void)
             BeginMode2D(gCamera);
                 DrawLevel(gCurrentLevel);
 
+                ObjectsUpdateAndDraw();
                 PlayerUpdate(&gPlayer);
                 PlayerDraw(&gPlayer);
             EndMode2D();
 
-            DrawText(TextFormat("%f", gPlayer.motion.x), 10, 30, 18, BLACK);
             DrawText(TextFormat("%.2f %.2f", gPlayer.obj.position.x, gCamera.offset.x / gCamera.zoom), 10, 50, 18, GREEN);
         EndDrawing();
     }

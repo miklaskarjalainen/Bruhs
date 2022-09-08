@@ -18,7 +18,7 @@ const level_t level1 = {
         ".......?...#?#?#........................................."
         "........................................................."
         ".................../|...................................."
-        "...................{}...................................."
+        ".4...............4.{}...................................."
         "444444444444444444444444444444444444444444444444444444444",
     .width = 57
 };
@@ -86,7 +86,7 @@ void DrawLevel(const level_t* data)
                 break;
             }
             
-            DrawText(TextFormat("%u", t), (x * 16) + 4, (y * 16) + 4, 8, BLACK);
+            // DrawText(TextFormat("%u", t), (x * 16) + 4, (y * 16) + 4, 8, BLACK);
         }
     }
 }
@@ -95,7 +95,7 @@ int CheckLevelCollision(Rectangle rect, const level_t* level)
 {
     assert(level);
 
-    Rectangle size = {
+    const Rectangle size = {
         (rect.x / 16),
         (rect.y / 16),
         (rect.width / 16),
@@ -107,7 +107,7 @@ int CheckLevelCollision(Rectangle rect, const level_t* level)
     {
         for (int y = size.y; y < (size.y + size.height); y++)
         {
-            // DrawRectangleLines(x * 16, y * 16, 16, 16, RED);
+            DrawRectangleLines(x * 16, y * 16, 16, 16, RED);
             
             block_type t = level->data[Width * y + x];
             switch (t)

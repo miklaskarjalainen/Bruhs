@@ -8,9 +8,10 @@ project("Bruhs" LANGUAGES C)
 
 # Main Programin
 add_executable(${PROJECT_NAME}
-	src/object.c  src/object.h
-	src/player.c  src/player.h
-	src/globals.c src/globals.h
+	src/objects/object.c  src/objects/object.h
+	src/objects/player.c  src/objects/player.h
+	src/objects/goomba.c src/objects/goomba.h
+    src/globals.c src/globals.h
 	src/levels.c  src/levels.h
     src/main.c
 )

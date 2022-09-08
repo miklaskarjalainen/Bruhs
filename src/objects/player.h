@@ -11,7 +11,7 @@ typedef enum player_state {
 typedef struct player_t {
 	object_t obj;
 	player_state state;
-	Vector2 motion;
+	float speed_cap;
 } player_t;
 
 extern player_t gPlayer;

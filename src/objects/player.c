@@ -1,9 +1,9 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <math.h>
-#include "globals.h"
 #include "player.h"
-#include "levels.h"
+#include "../globals.h"
+#include "../levels.h"
 
 #define PLAYER_GRAVITY   380.0f
 #define PLAYER_ACCEL     440.0f
@@ -16,21 +16,24 @@
 struct player_t gPlayer = {
 	.obj = {
 		.position = {32.f, .0f},
-		.type = OBJ_PLAYER
+		.motion = {.0f, .0f},
+		.type = OBJ_PLAYER,
+		.is_grounded = false,
 	},
 	.state = STATE_SMALL,
-	.motion = {.0f, .0f}
+	.speed_cap = PLAYER_WALK_CAP,
 };
 
 void PlayerReset(player_t* player)
 {
 	player->obj = (object_t){
 		.position = {.0f, .0f},
+		.motion = (Vector2){ .0f, .0f },
 		.type = OBJ_PLAYER,
-		
+		.is_grounded = false,
 	};
 	player->state = STATE_SMALL;
-	player->motion = (Vector2){ .0f, .0f };
+	player->speed_cap = PLAYER_WALK_CAP;
 }
 
 void PlayerDraw(player_t* player)
@@ -58,7 +61,7 @@ void PlayerDraw(player_t* player)
 void PlayerUpdate(player_t* player)
 {
 	const float delta = fminf(GetFrameTime(), 1.0/60.0); // Fix frametime spikes when doing window events (dragging/resizing)
-	player->motion.y += PLAYER_GRAVITY * delta;
+	player->obj.motion.y += PLAYER_GRAVITY * delta;
 
 	if (IsKeyPressed(KEY_R))
 		PlayerReset(player);
@@ -69,38 +72,43 @@ void PlayerUpdate(player_t* player)
 		moveX -= PLAYER_ACCEL * delta;
 	if (IsKeyDown(KEY_D))
 		moveX += PLAYER_ACCEL * delta;
-	player->motion.x += moveX;
+	player->obj.motion.x += moveX;
 
 	if (player->obj.is_grounded)
 	{
 		// Slowdown 
 		if (moveX == .0f)
 		{
-			player->motion.x = Lerp(player->motion.x, .0f, PLAYER_DEACCEL);
-			if (fabsf(player->motion.x) <= 1.0)
-				player->motion.x = .0f;
+			player->obj.motion.x = Lerp(player->obj.motion.x, .0f, PLAYER_DEACCEL);
+			if (fabsf(player->obj.motion.x) <= 1.0)
+				player->obj.motion.x = .0f;
 		}
 
 		// Jump
-		if (IsKeyPressed(KEY_W))
-			player->motion.y = PLAYER_JUMP_STR;
+		if (IsKeyPressed(KEY_K))
+			player->obj.motion.y = PLAYER_JUMP_STR;
+		
+		if (IsKeyDown(KEY_J))
+			player->speed_cap = PLAYER_RUN_CAP;
+		else
+			player->speed_cap = PLAYER_WALK_CAP;
 	}
 	else
 	{
 		// Jumpholding
-		if (IsKeyDown(KEY_W))
-			player->motion.y += PLAYER_JUMP_STR_HOLD * delta;
+		if (IsKeyDown(KEY_K))
+			player->obj.motion.y += PLAYER_JUMP_STR_HOLD * delta;
 	}
 	
 	// Speed caps
-	player->motion.x = fmax(fminf(player->motion.x, PLAYER_WALK_CAP), -PLAYER_WALK_CAP);
+	player->obj.motion.x = fmax(fminf(player->obj.motion.x, player->speed_cap), -player->speed_cap);
 	
-	player->motion = ObjectMoveAndSlide(&player->obj, player->motion, (Rectangle) { 0.f, 0.f, 16.f, 16.f});
+	ObjectMoveAndSlide(&player->obj, (Rectangle) { 0.f, 0.f, 16.f, 16.f});
 	float cameraX = fabsf(gCamera.offset.x / gCamera.zoom);
 	if (cameraX > player->obj.position.x)
 	{
 		player->obj.position.x = cameraX;
-		player->motion.x = .0f;
+		player->obj.motion.x = .0f;
 	}
 	
 	// Camera follow

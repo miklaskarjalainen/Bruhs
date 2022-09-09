@@ -3,12 +3,13 @@
 
 #include <raylib.h>
 
+//! If the order of these is changed, change GetObjectHitbox(...) aswell!! Keep player last!
 typedef enum object_type
 {
-	OBJ_NULL = 0,
+	OBJ_NULL   = 0,
+	OBJ_GOOMBA = 1,
 	OBJ_POWERUP,
 	OBJ_PLAYER,
-	OBJ_GOOMBA,
 } object_type;
 
 typedef enum dir_t
@@ -30,5 +31,6 @@ typedef struct object_t
 bool ObjectSpawn(const object_t obj);
 void ObjectsUpdateAndDraw();
 Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h);
+Rectangle GetObjectHitbox(const object_t* obj);
 
 #endif

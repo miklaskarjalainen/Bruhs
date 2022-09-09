@@ -1,7 +1,10 @@
+#include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <math.h>
+
 #include "player.h"
+
 #include "../globals.h"
 #include "../levels.h"
 
@@ -113,4 +116,11 @@ void PlayerUpdate(player_t* player)
 	
 	// Camera follow
 	gCamera.offset.x = -(player->obj.position.x * gCamera.zoom) + ((SCREEN_WIDTH / 2.0) * gCamera.zoom);
+}
+
+// TODO: Different sizes.
+Rectangle GetPlayerHitbox(const player_t* player)
+{
+	assert(player->obj.type == OBJ_PLAYER);
+	return (Rectangle) { .x = player->obj.position.x, player->obj.position.y, 16.f, 16.f };
 }

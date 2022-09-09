@@ -1,9 +1,12 @@
 #include <assert.h>
 #include <raylib.h>
 #include <math.h>
-#include "../globals.h"
-#include "../levels.h"
+
 #include "object.h"
+#include "goomba.h"
+
+#include "../levels.h"
+#include "../globals.h"
 
 object_t gObjects[OBJ_COUNT] = { 0 };
 
@@ -21,20 +24,6 @@ bool ObjectSpawn(const object_t obj)
 	return false;
 }
 
-void UpdateGoomba(object_t* obj)
-{
-	assert(obj->type == OBJ_GOOMBA);
-
-	const float delta = fminf(GetFrameTime(), 1.0 / 60.0); // Fix frametime spikes when doing window events (dragging/resizing)
-
-	obj->motion.x = 1400.0f * delta * obj->dir;
-	obj->motion.y += 330.0f * delta;
-	
-	ObjectMoveAndSlide(obj, (Rectangle) { 0.f, 0.f, 16.f, 16.f });
-	if (obj->motion.x == .0f)
-		obj->dir *= -1.f;
-}
-
 void ObjectsUpdateAndDraw()
 {
 	int ypos = 40;
@@ -49,8 +38,7 @@ void ObjectsUpdateAndDraw()
 		{
 		case OBJ_GOOMBA:
 		{
-			UpdateGoomba(obj);
-			DrawRectangleV(obj->position, (Vector2) { 16.f, 16.f }, ORANGE);
+			GoombaUpdateAndDraw(obj);
 			continue;
 		}
 		default:
@@ -124,4 +112,23 @@ Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h)
 	obj->is_grounded = ObjectIsGrounded(obj);
 
 	return obj->motion;
+}
+
+// W/ position (hitbox is different than bounding box)
+Rectangle GetObjectHitbox(const object_t* obj)
+{
+	assert(obj->type < OBJ_PLAYER); // don´t use this with player! Use GetPlayerHitbox instead!
+
+	static Rectangle hb[] = {
+		{0.f, 0.f, 0.f, 0.f}, // null
+		{2.f, 3.f, 12.f, 10.f}, // goomba
+		{0.f, 0.f, 16.f, 16.f}, // next obj
+	};
+
+	return (Rectangle){
+		.x = obj->position.x + hb[obj->type].x,
+		.y = obj->position.y + hb[obj->type].y,
+		.width  = hb[obj->type].width,
+		.height = hb[obj->type].height
+	};
 }

@@ -1,3 +1,9 @@
+/*
+	BTW:
+		Bounding box of the player is the same size as the hitbox of the player.
+		For most other objects (like enemies) this changes.
+*/
+
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "object.h"
@@ -19,5 +25,6 @@ extern player_t gPlayer;
 void PlayerReset(player_t* player);
 void PlayerDraw(player_t* player);
 void PlayerUpdate(player_t* player);
+Rectangle GetPlayerHitbox(const player_t* player);
 
 #endif

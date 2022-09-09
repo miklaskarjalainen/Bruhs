@@ -7,6 +7,12 @@
 #include "objects/goomba.h"
 #include "objects/object.h"
 
+#ifdef _MSC_VER
+#   ifdef NDEBUG
+#      pragma comment(linker, "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+#   endif
+#endif
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "clone bruhs");

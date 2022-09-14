@@ -60,7 +60,7 @@ inline bool ObjectIsGrounded(const object_t* obj)
 		.width = 8,
 		.height = 16
 	};
-	return CheckLevelCollision(rect, gCurrentLevel);
+	return CheckLevelCollision(rect, &gCurrentLevel);
 }
 
 // TODO: hitboxes with offset
@@ -77,7 +77,7 @@ Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h)
 		.width  = h.width,
 		.height = h.height,
 	};
-	if (CheckLevelCollision(rect, gCurrentLevel))
+	if (CheckLevelCollision(rect, &gCurrentLevel))
 	{
 		const int xGrid = (int)(rect.x / BLOCK_SIZE);
 		if (obj->motion.x > 0.0f)
@@ -95,7 +95,7 @@ Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h)
 	rect.x = h.x + obj->position.x;
 	rect.y = h.y + obj->position.y;
 
-	if (CheckLevelCollision(rect, gCurrentLevel))
+	if (CheckLevelCollision(rect, &gCurrentLevel))
 	{
 		const int yGrid = (int)(rect.y / BLOCK_SIZE);
 		if (obj->motion.y > 0.0f)

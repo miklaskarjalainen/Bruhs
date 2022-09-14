@@ -15,7 +15,7 @@ typedef enum
 
 typedef struct level_t
 {
-    const char* data; // Pure level data
+    char* data; // Pure level data
     int width;
 } level_t;
 
@@ -24,5 +24,7 @@ extern const level_t level2;
 
 void DrawLevel(const level_t* data);
 int  CheckLevelCollision(struct Rectangle rect, const level_t* level);
+
+extern inline void ChangeLevelTo(const level_t* data);
 
 #endif

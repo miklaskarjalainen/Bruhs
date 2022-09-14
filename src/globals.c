@@ -8,4 +8,7 @@ Camera2D gCamera = {
 	.rotation = .0f,
 	.zoom = 1.0f,
 };
-const level_t* gCurrentLevel = (level_t*)0;
+level_t gCurrentLevel = {
+	.data = (char*)0,
+	.width = 0
+};

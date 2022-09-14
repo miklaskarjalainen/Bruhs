@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <string.h>
 #include <raylib.h>
 #include "globals.h"
 #include "levels.h"
@@ -124,4 +125,26 @@ int CheckLevelCollision(Rectangle rect, const level_t* level)
         }
     }
     return 0;
+}
+
+void FreeCurrentLevel()
+{
+    if (gCurrentLevel.data != NULL)
+    {
+        MemFree(gCurrentLevel.data);
+        gCurrentLevel.data = NULL;
+    }
+    gCurrentLevel.width = 0;
+}
+
+void ChangeLevelTo(const level_t* data)
+{
+    FreeCurrentLevel();
+
+    const size_t size = strlen(data->data);
+    gCurrentLevel.data = MemAlloc(size);
+    assert(gCurrentLevel.data);
+    strcpy(gCurrentLevel.data, data->data);
+
+    gCurrentLevel.width = data->width;
 }

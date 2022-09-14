@@ -48,7 +48,7 @@ void PlayerDraw(player_t* player)
 	};
 
 	DrawRectangleRec(rect, RED);
-	if (CheckLevelCollision(rect, gCurrentLevel))
+	if (CheckLevelCollision(rect, &gCurrentLevel))
 	{
 		DrawRectangleRec(rect, GREEN);
 	}

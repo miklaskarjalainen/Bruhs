@@ -19,8 +19,7 @@ int main(void)
     SetTargetFPS(60);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     
-    gCurrentLevel = &level1;
-
+    ChangeLevelTo(&level1);
     ObjectSpawn(CreateGoomba((Vector2){100.f, 32.f}));
 
     while (!WindowShouldClose())
@@ -32,11 +31,11 @@ int main(void)
 
         if (IsKeyDown(KEY_ONE))
         {
-            gCurrentLevel = &level1;
+            ChangeLevelTo(&level1);
         }
         if (IsKeyDown(KEY_TWO))
         {
-            gCurrentLevel = &level2;
+            ChangeLevelTo(&level2);
         }
         
 
@@ -45,7 +44,7 @@ int main(void)
             DrawFPS(10, 10);
 
             BeginMode2D(gCamera);
-                DrawLevel(gCurrentLevel);
+                DrawLevel(&gCurrentLevel);
 
                 ObjectsUpdateAndDraw();
                 PlayerUpdate(&gPlayer);

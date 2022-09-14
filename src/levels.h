@@ -11,6 +11,9 @@ typedef enum
     BLOCK_BRICK = '#',
     BLOCK_GROUND = '4',
     BLOCK_COIN = 'o',
+
+    // Objects
+    BLOCK_GOOMBA = 'G',
 } block_type;
 
 typedef struct level_t

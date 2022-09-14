@@ -4,6 +4,10 @@
 #include "globals.h"
 #include "levels.h"
 
+#include "objects/player.h"
+#include "objects/goomba.h"
+#include "objects/object.h"
+
 const level_t level1 = {
     .data = 
         "........................................................."
@@ -16,7 +20,7 @@ const level_t level1 = {
         "........................................................."
         "........................................................."
         "........................................................."
-        ".......?...#?#?#........................................."
+        ".......?G..#?#?#........................................."
         "........................................................."
         ".................../|...................................."
         ".4...............4.{}...................................."
@@ -82,6 +86,11 @@ void DrawLevel(const level_t* data)
                 break;
             case BLOCK_COIN:
                 DrawBlock(x, y, YELLOW);
+                break;
+            case BLOCK_GOOMBA:
+                ObjectSpawn(CreateGoomba((Vector2) { x * 16, y * 16}));
+                gCurrentLevel.data[Width * y + x] = BLOCK_AIR;
+                
                 break;
             default:
                 break;

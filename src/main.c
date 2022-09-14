@@ -4,8 +4,6 @@
 #include "levels.h"
 
 #include "objects/player.h"
-#include "objects/goomba.h"
-#include "objects/object.h"
 
 #ifdef _MSC_VER
 #   ifdef NDEBUG
@@ -20,7 +18,6 @@ int main(void)
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     
     ChangeLevelTo(&level1);
-    ObjectSpawn(CreateGoomba((Vector2){100.f, 32.f}));
 
     while (!WindowShouldClose())
     {

@@ -24,7 +24,7 @@ typedef struct player_t {
 extern player_t gPlayer;
 
 void PlayerReset(player_t* player);
-void PlayerDraw(player_t* player);
+void PlayerDraw(const player_t* player);
 void PlayerUpdate(player_t* player);
 Rectangle GetPlayerHitbox(const player_t* player);
 

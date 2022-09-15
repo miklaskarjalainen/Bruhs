@@ -44,7 +44,7 @@ void PlayerReset(player_t* player)
 	player->speed_cap = PLAYER_WALK_CAP;
 }
 
-void PlayerDraw(player_t* player)
+void PlayerDraw(const player_t* player)
 {
 	Rectangle rect = {
 		player->obj.position.x,

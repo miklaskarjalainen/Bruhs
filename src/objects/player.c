@@ -11,6 +11,7 @@
 // https://web.archive.org/web/20130807122227/http://i276.photobucket.com/albums/kk21/jdaster64/smb_playerphysics.png
 #define PLAYER_ACCEL 1
 #define PLAYER_DEACCEL 1
+#define PLAYER_DEACCEL_SKIDDING 2
 
 #define PLAYER_BASE_GRAVITY 7
 #define PLAYER_JUMP_STR   (-(PIXEL * 4))
@@ -65,6 +66,7 @@ void PlayerDraw(player_t* player)
 	);
 }
 
+#include <stdio.h>
 void PlayerUpdate(player_t* player)
 {
 	player->speed_timer--;
@@ -74,11 +76,24 @@ void PlayerUpdate(player_t* player)
 
 	// Horizontal input
 	char moveX = 0;
-	if (IsKeyDown(KEY_A))
-		moveX -= PLAYER_ACCEL;
+	if (IsKeyDown(KEY_A)) 
+		moveX -= 1;
 	if (IsKeyDown(KEY_D))
-		moveX += PLAYER_ACCEL;
-	player->obj.motion.x += moveX;
+		moveX += 1;
+	
+	if (moveX != 0)
+	{
+		char movDir = player->obj.motion.x != 0 ? abs(player->obj.motion.x) / player->obj.motion.x : 0;
+		if (player->obj.is_grounded)
+		{
+			player->obj.dir = (dir_t)moveX;
+		}
+		if (movDir != player->obj.dir)
+			player->obj.motion.x += moveX * PLAYER_DEACCEL_SKIDDING;
+		else
+			player->obj.motion.x += moveX * PLAYER_ACCEL;
+	}
+	
 
 	// Gravity
 	int gravity = 0;
@@ -141,6 +156,7 @@ void PlayerUpdate(player_t* player)
 			player->speed_cap = PLAYER_WALK_CAP;
 	}
 	
+	
 	// Speed caps
 	if (player->obj.motion.x > player->speed_cap)
 		player->obj.motion.x = player->speed_cap;
@@ -152,7 +168,7 @@ void PlayerUpdate(player_t* player)
 	if (cameraX > player->obj.position.x)
 	{
 		player->obj.position.x = cameraX;
-		player->obj.motion.x = .0f;
+		player->obj.motion.x = 0;;
 	}
 	
 	// Camera follow

@@ -8,13 +8,17 @@
 #include "../globals.h"
 #include "../levels.h"
 
-#define PLAYER_GRAVITY   380.0f
-#define PLAYER_ACCEL     440.0f
-#define PLAYER_DEACCEL   0.15f
-#define PLAYER_JUMP_STR -150.0f
-#define PLAYER_JUMP_STR_HOLD -205.0f
-#define PLAYER_RUN_CAP   25
-#define PLAYER_WALK_CAP  15
+// https://web.archive.org/web/20130807122227/http://i276.photobucket.com/albums/kk21/jdaster64/smb_playerphysics.png
+#define PLAYER_ACCEL 1
+#define PLAYER_DEACCEL 1
+
+#define PLAYER_BASE_GRAVITY 7
+#define PLAYER_JUMP_STR   (-(PIXEL * 4))
+#define PLAYER_JUMP_STR_R (-(PIXEL * 5))
+#define PLAYER_FALL_CAP (4 * PIXEL)
+
+#define PLAYER_RUN_CAP   (PIXEL * 2 + 9)
+#define PLAYER_WALK_CAP  (PIXEL + 9)
 
 struct player_t gPlayer = {
 	.obj = {
@@ -25,7 +29,6 @@ struct player_t gPlayer = {
 	},
 	.state = STATE_SMALL,
 	.speed_cap = PLAYER_WALK_CAP,
-	.xspd = 0,
 };
 
 void PlayerReset(player_t* player)
@@ -64,8 +67,7 @@ void PlayerDraw(player_t* player)
 
 void PlayerUpdate(player_t* player)
 {
-	const float delta = fminf(GetFrameTime(), 1.0/60.0); // Fix frametime spikes when doing window events (dragging/resizing)
-	player->obj.motion.y += 1;
+	player->speed_timer--;
 
 	if (IsKeyPressed(KEY_R))
 		PlayerReset(player);
@@ -73,10 +75,38 @@ void PlayerUpdate(player_t* player)
 	// Horizontal input
 	char moveX = 0;
 	if (IsKeyDown(KEY_A))
-		moveX -= 1;
+		moveX -= PLAYER_ACCEL;
 	if (IsKeyDown(KEY_D))
-		moveX += 1;
+		moveX += PLAYER_ACCEL;
 	player->obj.motion.x += moveX;
+
+	// Gravity
+	int gravity = 0;
+	int8_t absX = abs(player->obj.motion.x);
+	if (IsKeyDown(KEY_K) && player->obj.motion.y < 0)
+	{
+		if (absX >= (PIXEL * 2))
+			gravity = 3;
+		else if (absX >= PIXEL)
+			gravity = 2;
+		else
+			gravity = 2;
+	}
+	else
+	{
+		if (absX >= (PIXEL * 2))
+			gravity = 9;
+		else if (absX >= PIXEL)
+			gravity = 6;
+		else
+			gravity = 7;
+	}
+	
+	// Cap falling speed
+	if ((player->obj.motion.y + gravity) <= PLAYER_FALL_CAP)
+		player->obj.motion.y += gravity;
+	else
+		player->obj.motion.y = PLAYER_FALL_CAP;
 
 	if (player->obj.is_grounded)
 	{
@@ -84,26 +114,30 @@ void PlayerUpdate(player_t* player)
 		if (moveX == 0)
 		{
 			if (player->obj.motion.x > 0)
-				player->obj.motion.x -= 1;
+				player->obj.motion.x -= PLAYER_DEACCEL;
 			else if (player->obj.motion.x < 0)
-				player->obj.motion.x += 1;
+				player->obj.motion.x += PLAYER_DEACCEL;
 		}
 
 		// Jump
 		if (IsKeyPressed(KEY_K))
+		{
 			player->obj.motion.y = PLAYER_JUMP_STR;
+			if (absX >= ((PIXEL * 2)+5))
+				player->obj.motion.y = PLAYER_JUMP_STR_R;
+		}
 		
 		if (IsKeyDown(KEY_J))
+		{
 			player->speed_cap = PLAYER_RUN_CAP;
-		else
+			player->speed_timer = 10;
+		}
+		else if (player->speed_timer == 0)
 			player->speed_cap = PLAYER_WALK_CAP;
 	}
 	else
 	{
-		// Jumpholding
-		if (IsKeyDown(KEY_K))
-			player->obj.motion.y += PLAYER_JUMP_STR_HOLD * delta;
-		if (abs(player->xspd) <= PLAYER_WALK_CAP)
+		if (absX <= PLAYER_WALK_CAP)
 			player->speed_cap = PLAYER_WALK_CAP;
 	}
 	

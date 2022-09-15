@@ -5,6 +5,7 @@
 #include <raylib.h>
 
 #define SUBPIXEL (1.f/16.f)
+#define PIXEL (1 * 16)
 
 //! If the order of these is changed, change GetObjectHitbox(...) aswell!! Keep player last!
 typedef enum object_type

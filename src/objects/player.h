@@ -18,7 +18,7 @@ typedef struct player_t {
 	object_t obj;
 	player_state state;
 	char speed_cap;
-	char xspd; // sub pixels
+	char speed_timer; // when reaches 0 and run not held, resets cap to walkspd.
 } player_t;
 
 extern player_t gPlayer;

@@ -1,7 +1,10 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include <stdint.h>
 #include <raylib.h>
+
+#define SUBPIXEL (1.f/16.f)
 
 //! If the order of these is changed, change GetObjectHitbox(...) aswell!! Keep player last!
 typedef enum object_type
@@ -11,6 +14,12 @@ typedef enum object_type
 	OBJ_POWERUP,
 	OBJ_PLAYER,
 } object_type;
+
+// Technically there are 16 different subspeed values so, meaby use a union instead?
+typedef struct vec2b {
+	int8_t x, y;
+} vec2b;
+typedef Vector2 vec2f;
 
 typedef enum dir_t
 {
@@ -22,15 +31,15 @@ typedef enum dir_t
 typedef struct object_t 
 {
 	object_type type;
-	Vector2 position;
-	Vector2 motion;
+	vec2f position;
+	vec2b motion;
 	dir_t dir;
 	bool is_grounded; /* Get's updated after move and slide */
 } object_t;
 
 bool ObjectSpawn(const object_t obj);
 void ObjectsUpdateAndDraw();
-Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h);
+vec2b ObjectMoveAndSlide(object_t* obj, const Rectangle h);
 Rectangle GetObjectHitbox(const object_t* obj);
 
 #endif

@@ -13,8 +13,8 @@
 #define PLAYER_DEACCEL   0.15f
 #define PLAYER_JUMP_STR -150.0f
 #define PLAYER_JUMP_STR_HOLD -205.0f
-#define PLAYER_RUN_CAP   140.0f
-#define PLAYER_WALK_CAP  80.0f
+#define PLAYER_RUN_CAP   25
+#define PLAYER_WALK_CAP  15
 
 struct player_t gPlayer = {
 	.obj = {
@@ -25,13 +25,14 @@ struct player_t gPlayer = {
 	},
 	.state = STATE_SMALL,
 	.speed_cap = PLAYER_WALK_CAP,
+	.xspd = 0,
 };
 
 void PlayerReset(player_t* player)
 {
 	player->obj = (object_t){
 		.position = {.0f, .0f},
-		.motion = (Vector2){ .0f, .0f },
+		.motion = (vec2b){0,0},
 		.type = OBJ_PLAYER,
 		.is_grounded = false,
 	};
@@ -64,27 +65,28 @@ void PlayerDraw(player_t* player)
 void PlayerUpdate(player_t* player)
 {
 	const float delta = fminf(GetFrameTime(), 1.0/60.0); // Fix frametime spikes when doing window events (dragging/resizing)
-	player->obj.motion.y += PLAYER_GRAVITY * delta;
+	player->obj.motion.y += 1;
 
 	if (IsKeyPressed(KEY_R))
 		PlayerReset(player);
 
 	// Horizontal input
-	float moveX = .0f;
+	char moveX = 0;
 	if (IsKeyDown(KEY_A))
-		moveX -= PLAYER_ACCEL * delta;
+		moveX -= 1;
 	if (IsKeyDown(KEY_D))
-		moveX += PLAYER_ACCEL * delta;
+		moveX += 1;
 	player->obj.motion.x += moveX;
 
 	if (player->obj.is_grounded)
 	{
 		// Slowdown 
-		if (moveX == .0f)
+		if (moveX == 0)
 		{
-			player->obj.motion.x = Lerp(player->obj.motion.x, .0f, PLAYER_DEACCEL);
-			if (fabsf(player->obj.motion.x) <= 1.0)
-				player->obj.motion.x = .0f;
+			if (player->obj.motion.x > 0)
+				player->obj.motion.x -= 1;
+			else if (player->obj.motion.x < 0)
+				player->obj.motion.x += 1;
 		}
 
 		// Jump
@@ -101,10 +103,15 @@ void PlayerUpdate(player_t* player)
 		// Jumpholding
 		if (IsKeyDown(KEY_K))
 			player->obj.motion.y += PLAYER_JUMP_STR_HOLD * delta;
+		if (abs(player->xspd) <= PLAYER_WALK_CAP)
+			player->speed_cap = PLAYER_WALK_CAP;
 	}
 	
 	// Speed caps
-	player->obj.motion.x = fmax(fminf(player->obj.motion.x, player->speed_cap), -player->speed_cap);
+	if (player->obj.motion.x > player->speed_cap)
+		player->obj.motion.x = player->speed_cap;
+	if (player->obj.motion.x < -player->speed_cap)
+		player->obj.motion.x = -player->speed_cap;
 	
 	ObjectMoveAndSlide(&player->obj, (Rectangle) { 0.f, 0.f, 16.f, 16.f});
 	float cameraX = fabsf(gCamera.offset.x / gCamera.zoom);

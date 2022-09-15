@@ -53,6 +53,9 @@ inline bool ObjectIsGrounded(const object_t* obj)
 		We but a thin hitbox 1 px below the object,
 		use it against the level and if collision is found then 
 		the object is grounded.
+
+		FIXME: using a thin hitboxi for grounded check doesn't
+		make the walljump work.
 	*/
 	Rectangle rect = {
 		.x = obj->position.x + 4,
@@ -64,12 +67,10 @@ inline bool ObjectIsGrounded(const object_t* obj)
 }
 
 // TODO: hitboxes with offset
-Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h)
+vec2b ObjectMoveAndSlide(object_t* obj, const Rectangle h)
 {
-	const float delta = GetFrameTime();
-
 	// X motion
-	obj->position.x += obj->motion.x * delta;
+	obj->position.x += obj->motion.x * SUBPIXEL;
 	
 	Rectangle rect = {
 		.x = h.x + obj->position.x,
@@ -80,7 +81,7 @@ Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h)
 	if (CheckLevelCollision(rect, &gCurrentLevel))
 	{
 		const int xGrid = (int)(rect.x / BLOCK_SIZE);
-		if (obj->motion.x > 0.0f)
+		if (obj->motion.x > 0)
 		{
 			obj->position.x = ((xGrid + 1) * BLOCK_SIZE) - rect.width - h.x;
 		}
@@ -88,17 +89,17 @@ Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h)
 		{
 			obj->position.x = (xGrid * BLOCK_SIZE) + BLOCK_SIZE - h.x;
 		}
-		obj->motion.x = .0f;
+		obj->motion.x = 0;
 	}
 
-	obj->position.y += obj->motion.y * delta;
+	obj->position.y += obj->motion.y * SUBPIXEL;
 	rect.x = h.x + obj->position.x;
 	rect.y = h.y + obj->position.y;
 
 	if (CheckLevelCollision(rect, &gCurrentLevel))
 	{
 		const int yGrid = (int)(rect.y / BLOCK_SIZE);
-		if (obj->motion.y > 0.0f)
+		if (obj->motion.y > 0)
 		{
 			obj->position.y = ((yGrid + 1) * BLOCK_SIZE) - rect.height - h.y;
 		}
@@ -106,7 +107,7 @@ Vector2 ObjectMoveAndSlide(object_t* obj, const Rectangle h)
 		{
 			obj->position.y = (yGrid * BLOCK_SIZE) + BLOCK_SIZE - h.y;
 		}
-		obj->motion.y = .0f;
+		obj->motion.y = 0;
 	}
 
 	obj->is_grounded = ObjectIsGrounded(obj);

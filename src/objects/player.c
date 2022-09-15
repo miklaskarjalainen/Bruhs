@@ -66,7 +66,6 @@ void PlayerDraw(const player_t* player)
 	);
 }
 
-#include <stdio.h>
 void PlayerUpdate(player_t* player)
 {
 	player->speed_timer--;

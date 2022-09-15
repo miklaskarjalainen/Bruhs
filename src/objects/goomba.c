@@ -31,18 +31,20 @@ inline void GoombaUpdateAndDraw(object_t* obj)
 		obj->dir *= -1.f;
 	
 	DrawRectangleV(obj->position, (Vector2) { 16.f, 16.f }, ORANGE);
-
-	Rectangle ph = GetPlayerHitbox(&gPlayer);
+	
+	// Drawing
 	Rectangle gh = GetObjectHitbox(obj);
 	DrawRectangleRec(gh, BLUE);
 
 	// Stomping
+	Rectangle ph = GetPlayerHitbox(&gPlayer);
+
 	if (CheckCollisionRecs(ph, gh))
 	{
 		if (gPlayer.obj.motion.y > 2.0f)
 		{
 			obj->type = OBJ_NULL;
-			gPlayer.obj.motion.y = -120.0f;
+			gPlayer.obj.motion.y = -(PIXEL * 4);
 		}
 	}
 }

@@ -44,6 +44,7 @@ void PlayerReset(player_t* player)
 	player->speed_cap = PLAYER_WALK_CAP;
 }
 
+void PlayerMoveAndSlide(const player_t* player);
 void PlayerDraw(const player_t* player)
 {
 	Rectangle rect = {
@@ -57,13 +58,8 @@ void PlayerDraw(const player_t* player)
 	{
 		DrawRectangleRec(rect, GREEN);
 	}
-	DrawRectangleLines(
-		player->obj.position.x + 4,
-		player->obj.position.y + 1,
-		8,
-		16,
-		DARKBLUE
-	);
+
+	PlayerMoveAndSlide(player);
 }
 
 void PlayerUpdate(player_t* player)
@@ -172,6 +168,52 @@ void PlayerUpdate(player_t* player)
 	
 	// Camera follow
 	gCamera.offset.x = -(player->obj.position.x * gCamera.zoom) + ((SCREEN_WIDTH / 2.0) * gCamera.zoom);
+}
+
+void PlayerMoveAndSlide(const player_t* player)
+{
+	// Start
+	if (player->obj.position.y > 207.f)
+		return;
+
+	// TODO: Other offsets (than just small mario)
+	// Get Offsets
+	const vec2f Pos = (vec2f){ player->obj.position.x, player->obj.position.y - 16};
+	const Rectangle Head      = (Rectangle){ Pos.x +  8.f, Pos.y + 18.f, 1.f, 1.f};
+	const Rectangle LeftFoot  = (Rectangle){ Pos.x +  3.f, Pos.y + 32.f, 1.f, 1.f};
+	const Rectangle RightFoot = (Rectangle){ Pos.x + 12.f, Pos.y + 32.f, 1.f, 1.f };
+
+	const Rectangle lLeftSide  = (Rectangle){ Pos.x +  2.f, Pos.y + 24.f, 1.f, 1.f};
+	const Rectangle lRightSide = (Rectangle){ Pos.x + 13.f, Pos.y + 24.f, 1.f, 1.f};
+
+	// Visual
+	DrawRectangleRec(Head, GREEN);
+	DrawRectangleRec(LeftFoot, MAGENTA);
+	DrawRectangleRec(RightFoot, MAGENTA);
+	DrawRectangleRec(lLeftSide, MAGENTA);
+	DrawRectangleRec(lRightSide, MAGENTA);
+
+	// Head Check
+	if (Pos.y >= 16) // 32 if big
+	{
+		block_type t = GetBlockAt((int)(Head.x / 16.f), (int)(Head.y / 16.f));
+		if (t != BLOCK_AIR)
+		{
+			if (t == BLOCK_COIN) // TODO: collect
+				return;
+
+			if (player->obj.motion.y <= 0.f)
+			{
+				const int BelowTile = ((int)Head.y) % 16;
+				if (BelowTile <= 4)
+				{
+
+				}
+
+			}
+		}
+	}
+
 }
 
 // TODO: Different sizes.

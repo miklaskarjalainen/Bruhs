@@ -28,6 +28,7 @@ extern const level_t level2;
 void DrawLevel(const level_t* data);
 int  CheckLevelCollision(struct Rectangle rect, const level_t* level);
 
+extern inline block_type GetBlockAt(int x, int y);
 extern inline void ChangeLevelTo(const level_t* data);
 
 #endif

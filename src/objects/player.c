@@ -44,7 +44,6 @@ void PlayerReset(player_t* player)
 	player->speed_cap = PLAYER_WALK_CAP;
 }
 
-void PlayerMoveAndSlide(const player_t* player);
 void PlayerDraw(const player_t* player)
 {
 	Rectangle rect = {
@@ -59,7 +58,7 @@ void PlayerDraw(const player_t* player)
 		DrawRectangleRec(rect, GREEN);
 	}
 
-	PlayerMoveAndSlide(player);
+	// PlayerMoveAndSlide(player);
 }
 
 void PlayerUpdate(player_t* player)
@@ -158,7 +157,8 @@ void PlayerUpdate(player_t* player)
 	if (player->obj.motion.x < -player->speed_cap)
 		player->obj.motion.x = -player->speed_cap;
 	
-	ObjectMoveAndSlide(&player->obj, (Rectangle) { 0.f, 0.f, 16.f, 16.f});
+	// ObjectMoveAndSlide(&player->obj, (Rectangle) { 0.f, 0.f, 16.f, 16.f});
+	PlayerMoveAndSlide(player);
 	float cameraX = fabsf(gCamera.offset.x / gCamera.zoom);
 	if (cameraX > player->obj.position.x)
 	{
@@ -170,11 +170,16 @@ void PlayerUpdate(player_t* player)
 	gCamera.offset.x = -(player->obj.position.x * gCamera.zoom) + ((SCREEN_WIDTH / 2.0) * gCamera.zoom);
 }
 
-void PlayerMoveAndSlide(const player_t* player)
+void PlayerMoveAndSlide(player_t* player)
 {
+	player->obj.position.x += player->obj.motion.x * SUBPIXEL;
+	player->obj.position.y += player->obj.motion.y * SUBPIXEL;
+
 	// Start
+	/*
 	if (player->obj.position.y > 207.f)
 		return;
+	*/
 
 	// TODO: Other offsets (than just small mario)
 	// Get Offsets
@@ -183,8 +188,10 @@ void PlayerMoveAndSlide(const player_t* player)
 	const Rectangle LeftFoot  = (Rectangle){ Pos.x +  3.f, Pos.y + 32.f, 1.f, 1.f};
 	const Rectangle RightFoot = (Rectangle){ Pos.x + 12.f, Pos.y + 32.f, 1.f, 1.f };
 
-	const Rectangle lLeftSide  = (Rectangle){ Pos.x +  2.f, Pos.y + 24.f, 1.f, 1.f};
-	const Rectangle lRightSide = (Rectangle){ Pos.x + 13.f, Pos.y + 24.f, 1.f, 1.f};
+	const Rectangle hRightSide  = (Rectangle){ Pos.x + 13.f, Pos.y + 8.f, 1.f, 1.f};
+	const Rectangle hLeftSide   = (Rectangle){ Pos.x +  2.f, Pos.y + 8.f, 1.f, 1.f};
+	const Rectangle lRightSide  = (Rectangle){ Pos.x + 13.f, Pos.y + 24.f, 1.f, 1.f};
+	const Rectangle lLeftSide   = (Rectangle){ Pos.x +  2.f, Pos.y + 24.f, 1.f, 1.f};
 
 	// Visual
 	DrawRectangleRec(Head, GREEN);
@@ -202,18 +209,87 @@ void PlayerMoveAndSlide(const player_t* player)
 			if (t == BLOCK_COIN) // TODO: collect
 				return;
 
-			if (player->obj.motion.y <= 0.f)
+			if (player->obj.motion.y < 0.f) // upwards
 			{
 				const int BelowTile = ((int)Head.y) % 16;
-				if (BelowTile <= 4)
+				if (BelowTile >= 4)
 				{
-
+					// check for hard tiles (air and coin already checked earlier.)
+					player->obj.motion.y = 1;
 				}
-
 			}
 		}
 	}
 
+	// Foot Check
+	{
+		block_type atFoot = GetBlockAt((int)(LeftFoot.x / 16.f), (int)(LeftFoot.y / 16.f));
+		int FootY = (int)LeftFoot.y;
+		// Left Foot Check
+		{
+			if (atFoot == BLOCK_COIN) // TODO: Collect 
+				return;
+
+			if (atFoot == BLOCK_AIR)
+			{
+				// Right Foot Check
+				atFoot = GetBlockAt((int)(RightFoot.x / 16.f), (int)(RightFoot.y / 16.f));
+				FootY = (int)RightFoot.y;
+				if (atFoot == BLOCK_COIN) // TODO: Collect 
+					return;
+				if (atFoot == BLOCK_AIR)
+					goto side_check;
+			}
+
+		}
+
+		if (player->obj.motion.y > 0) // downwards
+		{
+			const bool IsInvisible = false; //TODO: invisible block
+			if (IsInvisible)
+				goto side_check;
+
+			const int BelowTile = FootY % 16;
+			if (BelowTile <= 4)
+			{
+				// land on tile
+				player->obj.position.y = ((int)(player->obj.position.y / 16.f) * 16);
+				player->obj.motion.y = 0;
+				player->obj.is_grounded = true;
+			}
+			else
+			{
+				// TODO: push out of block
+			}
+		}
+	}
+
+	block_type side_block = BLOCK_AIR;
+side_check:
+	{
+		// TODO: Big mario
+		side_block = GetBlockAt((int)(lLeftSide.x / 16.f), (int)(lLeftSide.y / 16.f));
+		if (side_block != BLOCK_AIR)
+			goto finish_side_check;
+
+		side_block = GetBlockAt((int)(lRightSide.x / 16.f), (int)(lRightSide.y / 16.f));
+		if (side_block != BLOCK_AIR)
+			goto finish_side_check;
+		
+		return;
+	}
+
+finish_side_check:
+	if (side_block == BLOCK_COIN)
+	{
+		// TODO: Collect
+		return;
+	}
+
+	// push out of block
+	
+
+	return;
 }
 
 // TODO: Different sizes.

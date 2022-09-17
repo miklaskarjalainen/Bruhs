@@ -176,13 +176,12 @@ void PlayerMoveAndSlide(player_t* player)
 	player->obj.position.y += player->obj.motion.y * SUBPIXEL;
 
 	// Start
-	/*
-	if (player->obj.position.y > 207.f)
+	if (player->obj.position.y > (207.f + 16.f)) // currently mario's pivot in a wrong position.
 		return;
-	*/
 
 	// TODO: Other offsets (than just small mario)
 	// Get Offsets
+	
 	const vec2f Pos = (vec2f){ player->obj.position.x, player->obj.position.y - 16};
 	const Rectangle Head      = (Rectangle){ Pos.x +  8.f, Pos.y + 18.f, 1.f, 1.f};
 	const Rectangle LeftFoot  = (Rectangle){ Pos.x +  3.f, Pos.y + 32.f, 1.f, 1.f};
@@ -199,6 +198,8 @@ void PlayerMoveAndSlide(player_t* player)
 	DrawRectangleRec(RightFoot, MAGENTA);
 	DrawRectangleRec(lLeftSide, MAGENTA);
 	DrawRectangleRec(lRightSide, MAGENTA);
+
+	player->obj.is_grounded = false;
 
 	// Head Check
 	if (Pos.y >= 16) // 32 if big
@@ -224,7 +225,7 @@ void PlayerMoveAndSlide(player_t* player)
 	// Foot Check
 	{
 		block_type atFoot = GetBlockAt((int)(LeftFoot.x / 16.f), (int)(LeftFoot.y / 16.f));
-		int FootY = (int)LeftFoot.y;
+		int footY = (int)LeftFoot.y;
 		// Left Foot Check
 		{
 			if (atFoot == BLOCK_COIN) // TODO: Collect 
@@ -234,7 +235,7 @@ void PlayerMoveAndSlide(player_t* player)
 			{
 				// Right Foot Check
 				atFoot = GetBlockAt((int)(RightFoot.x / 16.f), (int)(RightFoot.y / 16.f));
-				FootY = (int)RightFoot.y;
+				footY = (int)RightFoot.y;
 				if (atFoot == BLOCK_COIN) // TODO: Collect 
 					return;
 				if (atFoot == BLOCK_AIR)
@@ -249,7 +250,7 @@ void PlayerMoveAndSlide(player_t* player)
 			if (IsInvisible)
 				goto side_check;
 
-			const int BelowTile = FootY % 16;
+			const int BelowTile = footY % 16;
 			if (BelowTile <= 4)
 			{
 				// land on tile
@@ -264,32 +265,37 @@ void PlayerMoveAndSlide(player_t* player)
 		}
 	}
 
-	block_type side_block = BLOCK_AIR;
-side_check:
+
+side_check:;
+	block_type sideBlock = BLOCK_AIR;
+	dir_t colDir = DIR_NONE;
 	{
 		// TODO: Big mario
-		side_block = GetBlockAt((int)(lLeftSide.x / 16.f), (int)(lLeftSide.y / 16.f));
-		if (side_block != BLOCK_AIR)
-			goto finish_side_check;
+		sideBlock = GetBlockAt((int)(lLeftSide.x / 16.f), (int)(lLeftSide.y / 16.f));
+		if (sideBlock != BLOCK_AIR)
+		{
+			colDir = DIR_LEFT;
+		}
 
-		side_block = GetBlockAt((int)(lRightSide.x / 16.f), (int)(lRightSide.y / 16.f));
-		if (side_block != BLOCK_AIR)
-			goto finish_side_check;
-		
-		return;
+		sideBlock = GetBlockAt((int)(lRightSide.x / 16.f), (int)(lRightSide.y / 16.f));
+		if (sideBlock != BLOCK_AIR)
+		{
+			colDir = DIR_RIGHT;
+		}
 	}
 
 finish_side_check:
-	if (side_block == BLOCK_COIN)
-	{
-		// TODO: Collect
+	if (colDir == DIR_NONE)
 		return;
-	}
-
-	// push out of block
+	if (sideBlock == BLOCK_COIN) // TODO: Collect
+		return;
 	
-
-	return;
+	// push out of block
+	if (player->obj.motion.x == 0 || colDir == abs(player->obj.motion.x) / player->obj.motion.x)
+	{
+		player->obj.motion.x = 0;
+		player->obj.position.x += (colDir * -1);
+	}
 }
 
 // TODO: Different sizes.

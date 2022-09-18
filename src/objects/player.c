@@ -1,10 +1,11 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <raylib.h>
 #include <raymath.h>
-#include <math.h>
 
 #include "player.h"
 
+#include "../assets.h"
 #include "../globals.h"
 #include "../levels.h"
 
@@ -27,9 +28,14 @@ struct player_t gPlayer = {
 		.motion = {.0f, .0f},
 		.type = OBJ_PLAYER,
 		.is_grounded = false,
+		.dir = DIR_RIGHT
 	},
 	.state = STATE_SMALL,
 	.speed_cap = PLAYER_WALK_CAP,
+
+	.is_big = false,
+	.is_fire = false,
+	.is_crouching = false
 };
 
 void PlayerReset(player_t* player)
@@ -39,9 +45,14 @@ void PlayerReset(player_t* player)
 		.motion = (vec2b){0,0},
 		.type = OBJ_PLAYER,
 		.is_grounded = false,
+		.dir = DIR_RIGHT
 	};
 	player->state = STATE_SMALL;
 	player->speed_cap = PLAYER_WALK_CAP;
+
+	player->is_big = false;
+	player->is_fire = false;
+	player->is_crouching = false;
 }
 
 void PlayerDraw(const player_t* player)
@@ -51,14 +62,24 @@ void PlayerDraw(const player_t* player)
 		player->obj.position.y,
 		16.f, 16.f
 	};
+	// DrawRectangleRec(rect, RED);
 
-	DrawRectangleRec(rect, RED);
-	if (CheckLevelCollision(rect, &gCurrentLevel))
+	const Rectangle Dest = {
+		.x = player->obj.position.x,
+		.y = player->obj.position.y - 16.f,
+		.width = 16.f, .height = 32.f
+	};
+	const Vector2 Pivot = { .x = 0.f, .y = 0.f };
+
+	if (player->is_big)
 	{
-		DrawRectangleRec(rect, GREEN);
+		DrawTexturePro(PlayerSprite, PLAYER_BIG_IDLE(player->obj.dir), Dest, Pivot, 0.f, WHITE);
+	}
+	else
+	{
+		DrawTexturePro(PlayerSprite, PLAYER_SMALL_IDLE(player->obj.dir), Dest, Pivot, 0.f, WHITE);
 	}
 
-	// PlayerMoveAndSlide(player);
 }
 
 void PlayerUpdate(player_t* player)
@@ -67,6 +88,7 @@ void PlayerUpdate(player_t* player)
 
 	if (IsKeyPressed(KEY_R))
 		PlayerReset(player);
+	player->is_big = IsKeyDown(KEY_SPACE);
 
 	// Horizontal input
 	char moveX = 0;
@@ -79,9 +101,8 @@ void PlayerUpdate(player_t* player)
 	{
 		char movDir = player->obj.motion.x != 0 ? abs(player->obj.motion.x) / player->obj.motion.x : 0;
 		if (player->obj.is_grounded)
-		{
 			player->obj.dir = (dir_t)moveX;
-		}
+		
 		if (movDir != player->obj.dir)
 			player->obj.motion.x += moveX * PLAYER_DEACCEL_SKIDDING;
 		else
@@ -270,17 +291,36 @@ side_check:;
 	block_type sideBlock = BLOCK_AIR;
 	dir_t colDir = DIR_NONE;
 	{
-		// TODO: Big mario
+		// High
+		if (player->is_big)
+		{
+			sideBlock = GetBlockAt((int)(hLeftSide.x / 16.f), (int)(hLeftSide.y / 16.f));
+			if (sideBlock != BLOCK_AIR)
+			{
+				colDir = DIR_LEFT;
+				goto finish_side_check;
+			}
+			sideBlock = GetBlockAt((int)(hRightSide.x / 16.f), (int)(hRightSide.y / 16.f));
+			if (sideBlock != BLOCK_AIR)
+			{
+				colDir = DIR_RIGHT;
+				goto finish_side_check;
+			}
+		}
+
+		// Low
 		sideBlock = GetBlockAt((int)(lLeftSide.x / 16.f), (int)(lLeftSide.y / 16.f));
 		if (sideBlock != BLOCK_AIR)
 		{
 			colDir = DIR_LEFT;
+			goto finish_side_check;
 		}
 
 		sideBlock = GetBlockAt((int)(lRightSide.x / 16.f), (int)(lRightSide.y / 16.f));
 		if (sideBlock != BLOCK_AIR)
 		{
 			colDir = DIR_RIGHT;
+			goto finish_side_check;
 		}
 	}
 

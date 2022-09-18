@@ -3,6 +3,7 @@
 #include <string.h>
 #include <raylib.h>
 
+#include "assets.h"
 #include "globals.h"
 #include "levels.h"
 
@@ -55,6 +56,11 @@ void DrawBlock(int x, int y, Color c)
     DrawRectangle(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, c);
 }
 
+void DrawBlockText(int x, int y, Rectangle t)
+{
+    DrawTexturePro(TileSetSprite, t, (Rectangle) {x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE}, (Vector2){ 0 }, 0.f, WHITE);
+}
+
 void DrawLevel(const level_t* data)
 {
     assert(data);
@@ -84,7 +90,7 @@ void DrawLevel(const level_t* data)
                 DrawBlock(x, y, RED);
                 break;
             case BLOCK_GROUND:
-                DrawBlock(x, y, BROWN);
+                DrawBlockText(x, y, TILE_GROUND);
                 break;
             case BLOCK_COIN:
                 DrawBlock(x, y, YELLOW);

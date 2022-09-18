@@ -1,5 +1,6 @@
 #include <raylib.h>
 
+#include "assets.h"
 #include "globals.h"
 #include "levels.h"
 
@@ -16,7 +17,8 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "clone bruhs");
     SetTargetFPS(60);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
-    
+    LoadAssets();
+
     ChangeLevelTo(&level1);
 
     while (!WindowShouldClose())
@@ -39,6 +41,7 @@ int main(void)
         BeginDrawing();
             ClearBackground(RAYWHITE);
             DrawFPS(10, 10);
+            
 
             BeginMode2D(gCamera);
                 DrawLevel(&gCurrentLevel);

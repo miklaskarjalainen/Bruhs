@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
 	src/objects/object.c  src/objects/object.h
 	src/objects/player.c  src/objects/player.h
 	src/objects/goomba.c src/objects/goomba.h
+	src/assets.c  src/assets.h
     src/globals.c src/globals.h
 	src/levels.c  src/levels.h
     src/main.c
@@ -28,3 +29,4 @@ target_link_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} raylib)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

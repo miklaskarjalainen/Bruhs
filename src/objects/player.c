@@ -225,11 +225,16 @@ void PlayerMoveAndSlide(player_t* player)
 	// Head Check
 	if (Pos.y >= 16) // 32 if big
 	{
-		block_type t = GetBlockAt((int)(Head.x / 16.f), (int)(Head.y / 16.f));
+		vec2b tilePos = { (int)(Head.x / 16.f), (int)(Head.y / 16.f) };
+		block_type t = GetBlockAt(tilePos.x, tilePos.y);
 		if (t != BLOCK_AIR)
 		{
 			if (t == BLOCK_COIN) // TODO: collect
+			{
+				player->coin_count++;
+				SetLevelBlock(tilePos.x, tilePos.y, BLOCK_AIR);
 				return;
+			}
 
 			if (player->obj.motion.y < 0.f) // upwards
 			{
@@ -245,12 +250,17 @@ void PlayerMoveAndSlide(player_t* player)
 
 	// Foot Check
 	{
-		block_type atFoot = GetBlockAt((int)(LeftFoot.x / 16.f), (int)(LeftFoot.y / 16.f));
+		vec2b tilePos = { (int)(LeftFoot.x / 16.f), (int)(LeftFoot.y / 16.f) };
+		block_type atFoot = GetBlockAt(tilePos.x, tilePos.y);
 		int footY = (int)LeftFoot.y;
 		// Left Foot Check
 		{
-			if (atFoot == BLOCK_COIN) // TODO: Collect 
+			if (atFoot == BLOCK_COIN)
+			{
+				player->coin_count++;
+				SetLevelBlock(tilePos.x, tilePos.y, BLOCK_AIR);
 				return;
+			}
 
 			if (atFoot == BLOCK_AIR)
 			{
@@ -290,17 +300,20 @@ void PlayerMoveAndSlide(player_t* player)
 side_check:;
 	block_type sideBlock = BLOCK_AIR;
 	dir_t colDir = DIR_NONE;
+	vec2b tilePos = { 0,0 };
 	{
 		// High
 		if (player->is_big)
 		{
-			sideBlock = GetBlockAt((int)(hLeftSide.x / 16.f), (int)(hLeftSide.y / 16.f));
+			tilePos = (vec2b){(int)(hLeftSide.x / 16.f), (int)(hLeftSide.y / 16.f)};
+			sideBlock = GetBlockAt(tilePos.x, tilePos.y);
 			if (sideBlock != BLOCK_AIR)
 			{
 				colDir = DIR_LEFT;
 				goto finish_side_check;
 			}
-			sideBlock = GetBlockAt((int)(hRightSide.x / 16.f), (int)(hRightSide.y / 16.f));
+			tilePos = (vec2b){ (int)(hRightSide.x / 16.f), (int)(hRightSide.y / 16.f) };
+			sideBlock = GetBlockAt(tilePos.x, tilePos.y);
 			if (sideBlock != BLOCK_AIR)
 			{
 				colDir = DIR_RIGHT;
@@ -309,14 +322,16 @@ side_check:;
 		}
 
 		// Low
-		sideBlock = GetBlockAt((int)(lLeftSide.x / 16.f), (int)(lLeftSide.y / 16.f));
+		tilePos = (vec2b){ (int)(lLeftSide.x / 16.f), (int)(lLeftSide.y / 16.f) };
+		sideBlock = GetBlockAt(tilePos.x, tilePos.y);
 		if (sideBlock != BLOCK_AIR)
 		{
 			colDir = DIR_LEFT;
 			goto finish_side_check;
 		}
 
-		sideBlock = GetBlockAt((int)(lRightSide.x / 16.f), (int)(lRightSide.y / 16.f));
+		tilePos = (vec2b){ (int)(lRightSide.x / 16.f), (int)(lRightSide.y / 16.f) };
+		sideBlock = GetBlockAt(tilePos.x, tilePos.y);
 		if (sideBlock != BLOCK_AIR)
 		{
 			colDir = DIR_RIGHT;
@@ -327,8 +342,12 @@ side_check:;
 finish_side_check:
 	if (colDir == DIR_NONE)
 		return;
-	if (sideBlock == BLOCK_COIN) // TODO: Collect
+	if (sideBlock == BLOCK_COIN)
+	{
+		player->coin_count++;
+		SetLevelBlock(tilePos.x, tilePos.y, BLOCK_AIR);
 		return;
+	}
 	
 	// push out of block
 	if (player->obj.motion.x == 0 || colDir == abs(player->obj.motion.x) / player->obj.motion.x)

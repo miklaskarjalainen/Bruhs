@@ -19,10 +19,13 @@ typedef struct player_t {
 	player_state state;
 	char speed_cap;
 	char speed_timer; // when reaches 0 and run not held, resets cap to walkspd.
-	
+
 	bool is_big;
 	bool is_fire;
 	bool is_crouching;
+
+	char coin_count;
+
 } player_t;
 
 extern player_t gPlayer;

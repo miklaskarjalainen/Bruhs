@@ -12,6 +12,12 @@
 #   endif
 #endif
 
+void ScaleWindow(int scale)
+{
+    SetWindowSize(SCREEN_WIDTH * scale, SCREEN_HEIGHT * scale);
+    gCamera.zoom = (float)GetScreenHeight() / (float)SCREEN_HEIGHT;
+}
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "clone bruhs");
@@ -24,19 +30,30 @@ int main(void)
     while (!WindowShouldClose())
     {
         if (IsWindowResized())
-        {
             gCamera.zoom = (float)GetScreenHeight() / (float)SCREEN_HEIGHT;
-        }
 
-        if (IsKeyDown(KEY_ONE))
+        if (IsKeyDown(KEY_LEFT_CONTROL))
         {
-            ChangeLevelTo(&level1);
+            // Hotkeys to resize window
+            if (IsKeyPressed(KEY_ONE))
+                ScaleWindow(1);
+            if (IsKeyDown(KEY_TWO))
+                ScaleWindow(2);
+            if (IsKeyDown(KEY_THREE))
+                ScaleWindow(3);
+            if (IsKeyDown(KEY_FOUR))
+                ScaleWindow(4);
+            if (IsKeyDown(KEY_FIVE))
+                ScaleWindow(5);
         }
-        if (IsKeyDown(KEY_TWO))
+        else
         {
-            ChangeLevelTo(&level2);
+            // Debug to level
+            if (IsKeyPressed(KEY_ONE))
+                ChangeLevelTo(&level1);
+            if (IsKeyDown(KEY_TWO))
+                ChangeLevelTo(&level2);
         }
-        
 
         BeginDrawing();
             ClearBackground(RAYWHITE);

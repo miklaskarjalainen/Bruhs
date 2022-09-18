@@ -1,6 +1,8 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 #include <raylib.h>
+
 #include "globals.h"
 #include "levels.h"
 
@@ -95,8 +97,6 @@ void DrawLevel(const level_t* data)
             default:
                 break;
             }
-            
-            // DrawText(TextFormat("%u", t), (x * 16) + 4, (y * 16) + 4, 8, BLACK);
         }
     }
 }
@@ -117,8 +117,6 @@ int CheckLevelCollision(Rectangle rect, const level_t* level)
     {
         for (int y = size.y; y < (size.y + size.height); y++)
         {
-            DrawRectangleLines(x * 16, y * 16, 16, 16, RED);
-            
             block_type t = level->data[Width * y + x];
             switch (t)
             {
@@ -146,7 +144,7 @@ inline void FreeCurrentLevel()
 {
     if (gCurrentLevel.data != NULL)
     {
-        MemFree(gCurrentLevel.data);
+        free(gCurrentLevel.data);
         gCurrentLevel.data = NULL;
     }
     gCurrentLevel.width = 0;
@@ -155,11 +153,11 @@ inline void FreeCurrentLevel()
 inline void ChangeLevelTo(const level_t* data)
 {
     FreeCurrentLevel();
-
+    
     const size_t size = strlen(data->data);
-    gCurrentLevel.data = MemAlloc(size);
+    gCurrentLevel.data = malloc(size);
     assert(gCurrentLevel.data);
-    strcpy(gCurrentLevel.data, data->data);
+    memcpy(gCurrentLevel.data, data->data, size);
 
     gCurrentLevel.width = data->width;
 }

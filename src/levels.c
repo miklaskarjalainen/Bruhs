@@ -134,25 +134,16 @@ int CheckLevelCollision(Rectangle rect, const level_t* level)
     return 0;
 }
 
-inline block_type GetBlockAt(int x, int y)
+block_type GetBlockAt(int x, int y)
 {
     assert(gCurrentLevel.data);
     return gCurrentLevel.data[gCurrentLevel.width * y + x];
 }
 
-inline void FreeCurrentLevel()
+void ChangeLevelTo(const level_t* data)
 {
     if (gCurrentLevel.data != NULL)
-    {
         free(gCurrentLevel.data);
-        gCurrentLevel.data = NULL;
-    }
-    gCurrentLevel.width = 0;
-}
-
-inline void ChangeLevelTo(const level_t* data)
-{
-    FreeCurrentLevel();
     
     const size_t size = strlen(data->data);
     gCurrentLevel.data = malloc(size);

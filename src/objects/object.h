@@ -6,6 +6,7 @@
 
 #define SUBPIXEL (1.f/16.f)
 #define PIXEL (1 * 16)
+#define OBJ_COUNT 4
 
 //! If the order of these is changed, change GetObjectHitbox(...) aswell!! Keep player last!
 typedef enum object_type
@@ -42,5 +43,7 @@ bool ObjectSpawn(const object_t obj);
 void ObjectsUpdateAndDraw();
 vec2b ObjectMoveAndSlide(object_t* obj, const Rectangle h);
 Rectangle GetObjectHitbox(const object_t* obj);
+
+extern struct object_t gObjects[OBJ_COUNT];
 
 #endif

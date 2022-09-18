@@ -3,10 +3,8 @@
 
 #define SCREEN_WIDTH  256
 #define SCREEN_HEIGHT 240
-#define OBJ_COUNT 4
 
 extern struct Camera2D gCamera;
 extern struct level_t gCurrentLevel;
-extern struct object_t gObjects[OBJ_COUNT];
 
 #endif

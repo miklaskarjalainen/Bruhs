@@ -6,7 +6,7 @@
 
 #include "player.h"
 
-inline object_t CreateGoomba(const Vector2 position)
+object_t CreateGoomba(const Vector2 position)
 {
     return (object_t) {
         .type = OBJ_GOOMBA,
@@ -17,7 +17,7 @@ inline object_t CreateGoomba(const Vector2 position)
     };
 }
 
-inline void GoombaUpdateAndDraw(object_t* obj)
+void GoombaUpdateAndDraw(object_t* obj)
 {
 	assert(obj->type == OBJ_GOOMBA);
 

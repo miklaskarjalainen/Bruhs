@@ -47,7 +47,7 @@ void ObjectsUpdateAndDraw()
 	}
 }
 
-inline bool ObjectIsGrounded(const object_t* obj)
+bool ObjectIsGrounded(const object_t* obj)
 {
 	/*
 		We but a thin hitbox 1 px below the object,

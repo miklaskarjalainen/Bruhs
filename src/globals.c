@@ -8,7 +8,10 @@ Camera2D gCamera = {
 	.rotation = .0f,
 	.zoom = 1.0f,
 };
+
 level_t gCurrentLevel = {
 	.data = (char*)0,
 	.width = 0
 };
+
+char gAnimFrame = 0;

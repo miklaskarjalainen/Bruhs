@@ -64,6 +64,14 @@ void DrawBlockText(int x, int y, Rectangle t)
 void DrawLevel(const level_t* data)
 {
     assert(data);
+    static char ps = 0;
+    ps++;
+    if (ps > 10)
+    {
+        ps = 0;
+        if (++gAnimFrame > 3)
+            gAnimFrame = 0;
+    }
 
     const int Width = data->width;
     for (int x = 0; x < Width; x++)
@@ -84,21 +92,20 @@ void DrawLevel(const level_t* data)
             case BLOCK_AIR:
                 break;
             case BLOCK_QB:
-                DrawBlock(x, y, ORANGE);
+                DrawBlockText(x, y, TILE_QB(gAnimFrame));
                 break;
             case BLOCK_BRICK:
-                DrawBlock(x, y, RED);
+                DrawBlockText(x, y, TILE_BRICK);
                 break;
             case BLOCK_GROUND:
                 DrawBlockText(x, y, TILE_GROUND);
                 break;
             case BLOCK_COIN:
-                DrawBlock(x, y, YELLOW);
+                DrawBlockText(x, y, TILE_COIN(gAnimFrame));
                 break;
             case BLOCK_GOOMBA:
                 ObjectSpawn(CreateGoomba((Vector2) { x * 16, y * 16}));
                 gCurrentLevel.data[Width * y + x] = BLOCK_AIR;
-                
                 break;
             default:
                 break;

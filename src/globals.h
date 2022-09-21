@@ -6,5 +6,6 @@
 
 extern struct Camera2D gCamera;
 extern struct level_t gCurrentLevel;
+extern char gAnimFrame;
 
 #endif
